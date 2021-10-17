@@ -4,7 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\EditorialesController;
 use App\Http\Controllers\CategoriasController;
-
+use App\Http\Controllers\AutoresController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -32,4 +32,10 @@ Route::prefix('categoria')->group(function (){
     Route::post('/save',[CategoriasController::class, 'store']);
     Route::get('/show/{id}',[CategoriasController::class, 'show']);
     Route::delete('/destroy/{id}',[CategoriasController::class, 'destroy']);
+});
+
+Route::prefix('autor')->group(function (){
+    Route::get('/show/{id}',[AutoresController::class, 'show']);
+    Route::post('/save',[AutoresController::class, 'store']);
+    Route::delete('/destroy/{id}',[AutoresController::class, 'destroy']);
 });
