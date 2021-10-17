@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Categoria;
 use Illuminate\Http\Request;
+use Illuminate\Database\QueryException;
+use Illuminate\Support\Facades\DB;
 
 class CategoriasController extends Controller
 {
@@ -13,18 +16,12 @@ class CategoriasController extends Controller
      */
     public function index()
     {
-        //
+        
+        $listaCategoria = DB::table('categorias')->get();
+        $message = ($listaCategoria) ? "Consulta exitosa" : "sin registros";
+        return response()->json(["error"=>false, "message"=>$message, "categorias"=> $listaCategoria]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
 
     /**
      * Store a newly created resource in storage.
@@ -34,7 +31,26 @@ class CategoriasController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        DB::beginTransaction();
+        try{
+            if(!$request->id){
+                $message = "Registro exitoso";
+                $objetoCategoria = new Categoria();
+                
+            }else{
+                $message = "Actualización exitosa";
+                $objetoCategoria = Categoria::find($request->id);
+            }
+            $objetoCategoria->nombre = $request->nombre;
+            $objetoCategoria->save();
+            DB::commit();
+            return response()->json([
+                "error"=>false, "message"=>$message, "registro" => $objetoCategoria], 201);
+
+        }catch (QueryException $queryException){
+            DB::rollBack();
+            return response()->json($queryException->errorInfo,500);
+        }
     }
 
     /**
@@ -45,31 +61,14 @@ class CategoriasController extends Controller
      */
     public function show($id)
     {
-        //
+        $objetoCategoria = Categoria::find($id);
+        if($objetoCategoria){
+            return response()->json(["error"=>false, "message"=> "Consulta Exitosa", "Registro" => $objetoCategoria], 200);
+        }else{
+            return response()->json(["error"=>false, "message"=> "Consulta Exitosa", "Registro" => "Registro inexistente"],200);
+        }
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
-    {
-        //
-    }
 
     /**
      * Remove the specified resource from storage.
@@ -79,6 +78,13 @@ class CategoriasController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $objetoCategoria = Categoria::find($id);
+        if($objetoCategoria){
+            $objetoCategoria->delete();
+            return response()->json(["error" => false, "message" => "Eliminacion exitosa"], 200);
+        }else{
+            return response()->json(["error" => false, "message" => "Registro inexistente"], 200);
+        
+        }
     }
 }

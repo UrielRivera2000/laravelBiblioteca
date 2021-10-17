@@ -2,6 +2,8 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\EditorialesController;
+use App\Http\Controllers\CategoriasController;
 
 /*
 |--------------------------------------------------------------------------
@@ -14,6 +16,20 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
+Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
+});
+
+Route::prefix('editorial')->group(function (){
+    Route::get('', [EditorialesController::class, 'index']);
+    Route::post('/save',[EditorialesController::class, 'store']);
+    Route::get('/show/{id}',[EditorialesController::class, 'show']);
+    Route::delete('/destroy/{id}',[EditorialesController::class, 'destroy']);
+});
+
+Route::prefix('categoria')->group(function (){
+    Route::get('', [CategoriasController::class, 'index']);
+    Route::post('/save',[CategoriasController::class, 'store']);
+    Route::get('/show/{id}',[CategoriasController::class, 'show']);
+    Route::delete('/destroy/{id}',[CategoriasController::class, 'destroy']);
 });

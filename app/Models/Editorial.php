@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class editoriales extends Model
+class Editorial extends Model
 {
     use HasFactory;
 
@@ -18,5 +18,5 @@ class editoriales extends Model
         'id',
         'nombre'
         
-    ]
+    ];
 }
