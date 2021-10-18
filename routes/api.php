@@ -44,6 +44,8 @@ Route::prefix('autor')->group(function (){
 Route::prefix('libro')->group(function (){
     Route::post('/save',[LibrosController::class, 'store']);
     Route::get('/show/{id}',[LibrosController::class, 'show']);
+    Route::get('/show/year/{year}',[LibrosController::class, 'showByYear']);
     Route::delete('/destroy/{id}',[LibrosController::class, 'destroy']);
    
+    
 });

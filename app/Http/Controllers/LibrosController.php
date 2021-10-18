@@ -95,9 +95,10 @@ class LibrosController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function showByYear($year)
     {
-        //
+        $listLibros = Libro::with('autores','categorias', 'editoriales')->whereYear('fecha_publicacion', $year)->orderBy('titulo', 'asc')->get();
+        return response()->json(["Libros"=>$listLibros], 200);
     }
 
     /**
