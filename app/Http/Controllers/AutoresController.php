@@ -65,10 +65,10 @@ class AutoresController extends Controller
             }
           
             DB::commit();
-            return response()->json(["error"=>false, "message"=>"Registro exitoso"], 200);
+            return response()->json(["error"=>false, "message"=>"Registro exitoso","registro" => $objetoAutor], 200);
         }catch(QueryException $queryException){
             DB::rollBack();
-            return response()->json(["error"=>true, "message"=>"Ocurrio un error", "El error es: "=>$queryException], 500);
+            return response()->json(["error"=>true, "message"=>"EL ISBN ya existe"], 500);
         }
     }
 

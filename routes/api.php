@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\EditorialesController;
 use App\Http\Controllers\CategoriasController;
 use App\Http\Controllers\AutoresController;
+use App\Http\Controllers\LibrosController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -38,4 +39,11 @@ Route::prefix('autor')->group(function (){
     Route::get('/show/{id}',[AutoresController::class, 'show']);
     Route::post('/save',[AutoresController::class, 'store']);
     Route::delete('/destroy/{id}',[AutoresController::class, 'destroy']);
+});
+
+Route::prefix('libro')->group(function (){
+    Route::post('/save',[LibrosController::class, 'store']);
+    Route::get('/show/{id}',[LibrosController::class, 'show']);
+    Route::delete('/destroy/{id}',[LibrosController::class, 'destroy']);
+   
 });
