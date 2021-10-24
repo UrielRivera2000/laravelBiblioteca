@@ -12,25 +12,7 @@ use Illuminate\Support\Facades\DB;
 
 class AutoresController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index()
-    {
-        //
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
+    
 
     /**
      * Store a newly created resource in storage.
@@ -45,16 +27,14 @@ class AutoresController extends Controller
 
             if(!$request->id){
                     $objetoAutor = new Autor();
+                    $message="Registro Exitoso";
             }else{
                 $objetoAutor = Autor::find($request->id);
                 foreach ($objetoAutor->libros as $item) {
                     $objetoAutor->libros()->deteach([$item->id]);
                 }
-                // die();
+                $message="Actualización Exitosa";
             }
-
-
-            // $objetoAutor = new Autor();
             $objetoAutor->nombre = $request->nombre;
             $objetoAutor->apellido1 = $request->apellido1;
             $objetoAutor->apellido2 = $request->apellido2;
@@ -65,10 +45,10 @@ class AutoresController extends Controller
             }
           
             DB::commit();
-            return response()->json(["error"=>false, "message"=>"Registro exitoso","registro" => $objetoAutor], 200);
+            return response()->json(["error"=>false, "message"=>$message,"registro" => $objetoAutor], 200);
         }catch(QueryException $queryException){
             DB::rollBack();
-            return response()->json(["error"=>true, "message"=>"EL ISBN ya existe"], 500);
+            return response()->json(["error"=>true, "message"=>$queryException], 500);
         }
     }
 
@@ -80,18 +60,12 @@ class AutoresController extends Controller
      */
     public function show($id)
     {
-        // $objetoAutor::table('autores')
-        // ->join('autores_libros', 'autores.id', '=', 'autores_libros.autores_id')
-        // ->join('autores_libros', 'users.id', '=', 'orders.user_id')
-        $objetoAutor = Autor::with('libros')->where('id',$id)->first();
-        // $objetoAutor = Autor::with('libros')->where(function($query){
-        //     $query->orderBy("fecha_publicacion", 'DESC');
-        //     $query->where("id", $id);
-        // })->get();
-        return response()->json(["objetoAutor"=>$objetoAutor], 200);
-    }
+        $objetoAutor = Autor::with(['libros' => function($query){
+            $query->orderBy('fecha_publicacion', 'DESC');
+        }])->where('id', $id)->first();
 
-    
+        return response()->json(["error"=>false, "objetoAutor"=>$objetoAutor], 200);
+    }
     /**
      * Remove the specified resource from storage.
      *
@@ -100,27 +74,13 @@ class AutoresController extends Controller
      */
     public function destroy($id)
     {
-        
         $objetoAutor = Autor::find($id);
-        $objetoAutorLibro = DB::select("SELECT * FROM autores_libros WHERE autores_id = ?", [$id]);
-
-        try{
-            if($objetoAutor && !$objetoAutorLibro){
-                $objetoAutor->delete();
-                return response()->json(["error" => false, "message" => "Eliminacion exitosa"], 200);
-            }else{
-                if($objetoAutor && $objetoAutorLibro){
-                    return response()->json(["error" => false, "message" => "No se puede borrar porque tiene libros"], 200);
-                }else{
-                    return response()->json(["error" => false, "message" => "Registro inexistente"], 200);
-                }
-               
-            
-            }
-        }catch (QueryException $queryException){
-            DB::rollBack();
-            return response()->json($queryException->errorInfo,500);
+        if(sizeof($objetoAutor->libros)==0){
+            $objetoAutor->delete();
+            return response()->json(["error" => false, "message" => "Eliminacion exitosa"], 200);
+        }else{
+            return response()->json(["error" => false, "message" => "No se puede borrar porque tiene libros"], 200);
         }
-      
+    
     }
 }

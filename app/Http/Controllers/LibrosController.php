@@ -12,25 +12,7 @@ use Illuminate\Support\Facades\DB;
 
 class LibrosController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index()
-    {
-        //
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
+   
 
     /**
      * Store a newly created resource in storage.
@@ -44,15 +26,23 @@ class LibrosController extends Controller
         try{
 
             if(!$request->id){
+
+                
                     $objetoLibro = new Libro();
+                    $objetoLibro2 = Libro::where('isbn', $request->isbn)->first();
+                
+                if($objetoLibro2){
+                    return response()->json(["error"=>false, "message"=>"El ISBN ya existe"], 200);
+                }
+
                     $message="Registro Exitoso";
             }else{
                 $objetoLibro = Libro::find($request->id);
                 foreach ($objetoLibro->autores as $item) {
                     $objetoLibro->autores()->deteach([$item->id]);
                 }
-                $message="Actualización Exitosa";
                 
+                $message="Actualización Exitosa";
             }
 
             $objetoLibro->isbn = $request->isbn;
@@ -66,9 +56,6 @@ class LibrosController extends Controller
             foreach ($request->autores as $item) {
                 $objetoLibro->autores()->attach($item);
             }
-            
-
-
             DB::commit();
             return response()->json(["error"=>false, "message"=>$message, "registro" => $objetoLibro], 200);
         }catch(QueryException $queryException){
@@ -89,6 +76,22 @@ class LibrosController extends Controller
         return response()->json(["objetoLibro"=>$objetoLibro], 200);
     }
 
+
+
+    /**
+     * Display the specified resource.
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function showByIsbnOrTitle(Request $request)
+    {
+       $listaLibros = Libro::where('isbn', 'like', '%'.$request->criterio.'%')
+       ->orWhere('titulo', 'like', '%'.$request->criterio.'%')->get();
+        return response()->json(["error"=>false, "message"=>"Exito", "lista"=>$listaLibros], 200);
+    }
+
+
+
     /**
      * Show the form for editing the specified resource.
      *
@@ -102,18 +105,6 @@ class LibrosController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
-    {
-        //
-    }
-
-    /**
      * Remove the specified resource from storage.
      *
      * @param  int  $id
@@ -121,27 +112,23 @@ class LibrosController extends Controller
      */
     public function destroy($id)
     {
-        $objetoLibro = Libro::find($id);
-        $objetoLibroAutor = DB::select("SELECT * FROM autores_libros WHERE libros_id = ?", [$id]);
 
-        try{
-            if($objetoLibro && !$objetoLibroAutor){
-                $objetoLibro->delete();
-                return response()->json(["error" => false, "message" => "Eliminacion exitosa"], 200);
-            }else{
-                if($objetoLibro && $objetoLibroAutor){
-                    return response()->json(["error" => false, "message" => "No se puede borrar porque tiene autores"], 200);
-                }else{
-                    return response()->json(["error" => false, "message" => "Registro inexistente"], 200);
-                }
-               
-            
-            }
-        }catch (QueryException $queryException){
-            DB::rollBack();
-            return response()->json($queryException->errorInfo,500);
+        $objetoLibro = Libro::find($id);
+        if(sizeof($objetoLibro->autores)==0){
+            $objetoLibro->delete();
+            return response()->json(["error" => false, "message" => "Eliminacion exitosa"], 200);
+        }else{
+            return response()->json(["error" => false, "message" => "No se puede borrar porque tiene autores"], 200);
         }
+
       
+    }
+
+
+    public function unique(){
+
+        $libros = $libros->unique('isbn');
+        return response()->json(["Libros"=>$libros], 200);
     }
     
 }

@@ -46,6 +46,10 @@ Route::prefix('libro')->group(function (){
     Route::get('/show/{id}',[LibrosController::class, 'show']);
     Route::get('/show/year/{year}',[LibrosController::class, 'showByYear']);
     Route::delete('/destroy/{id}',[LibrosController::class, 'destroy']);
+    Route::get('/showByIsbnOrTitle',[LibrosController::class, 'showByIsbnOrTitle']);
+
+
+    Route::get('/modelKeys',[LibrosController::class, 'modelKeys']);
    
     
 });
